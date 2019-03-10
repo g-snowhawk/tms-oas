@@ -1,0 +1,212 @@
+@charset 'utf-8';
+
+.separate-block {
+  display: flex;
+  justify-content: space-between;
+}
+.separate-block > * {
+  display: block;
+}
+
+.hidden-block {
+  visibility: hidden;
+}
+
+.narrow-labels .fieldset div.legend,
+.narrow-labels .fieldset label {
+  min-width: 80px;
+}
+
+ul.button-list {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+ul.button-list li {
+  margin: 2px;
+}
+ul.button-list li a {
+  background: #69c;
+  border-radius: 4px;
+  color: #fff;
+  display: inline-block;
+  font-size: 1.2rem;
+  font-weight: 200;
+  min-width: 100px;
+  padding: .5em 1em;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+ul.button-list li a:focus,
+ul.button-list li a:hover {
+  background: #36c;
+}
+
+table.transfer-detail {
+  border-collapse: collapse;
+  margin: auto;
+}
+table.transfer-detail td {
+  border: 1px solid #ccc;
+}
+table.transfer-detail.payment input[name=issue_date],
+table.transfer-detail.payment input[name=trade],
+table.transfer-detail.payment td {
+  border-color: #9cf;
+}
+table.transfer-detail.receipt input[name=issue_date],
+table.transfer-detail.receipt input[name=trade],
+table.transfer-detail.receipt td {
+  border-color: #f99;
+}
+table.transfer-detail input[type=number]::-webkit-inner-spin-button,
+table.transfer-detail input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+table.transfer-detail input[type=number] {
+  -moz-appearance: textfield;
+  appearance: none;
+}
+table.transfer-detail thead td,
+table.transfer-detail tfoot td {
+  cursor: default;
+  font-size: .8rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: .8em .5em;
+  text-align: center;
+  -webkit-user-select: none;
+  user-select: none;
+}
+table.transfer-detail.payment thead td ,
+table.transfer-detail.payment tfoot td {
+  color: #36f;
+}
+table.transfer-detail.receipt thead td ,
+table.transfer-detail.receipt tfoot td {
+  color: #f66;
+}
+table.transfer-detail thead tr.header td {
+  border: 0 none transparent;
+  padding: 0 0 .5em;
+  text-align: left;
+}
+table.transfer-detail thead tr.header td div {
+  position: relative;
+}
+table.transfer-detail thead tr.header td div.flex-box {
+  align-items: flex-end;
+  display: flex;
+  justify-content: space-between;
+}
+table.transfer-detail tfoot td.value {
+  color: #000;
+  font-weight: normal;
+  text-align: right;
+}
+table.transfer-detail tbody td {
+  padding: 0 0 1px;
+}
+table.transfer-detail tbody td input {
+  border: 0 none transparent;
+  line-height: 1;
+  margin: 0;
+  vertical-align: top;
+}
+table.transfer-detail input[name^=amount_] {
+  padding: .5em;
+  text-align: right;
+  width: 110px;
+}
+table.transfer-detail select[name^=item_code_] {
+  border: 0 none transparent;
+  border-radius: 0;
+  line-height: 1;
+  padding: .5em;
+  text-align: center;
+  vertical-align: top;
+  width: 120px;
+}
+table.transfer-detail select[name^=item_code_]:disabled {
+  color: #000;
+}
+table.transfer-detail input[name^=summary] {
+  padding: .5em;
+  text-align: center;
+  width: 240px;
+}
+table.transfer-detail select:focus,
+table.transfer-detail input[type^=date]:focus,
+table.transfer-detail input[type=number]:focus,
+table.transfer-detail input[type=text]:focus {
+  color: #039;
+}
+
+table.transfer-detail #page-nav td {
+  border: 0 none transparent;
+  text-align: right;
+}
+table.transfer-detail #page-nav td span,
+table.transfer-detail #page-nav td a {
+  border-radius: 4px;
+  color: #000;
+  display: inline-block;
+  font-weight: normal;
+  padding: .3em;
+  text-decoration: none;
+  transition: background .3s linear;
+}
+table.transfer-detail #page-nav td a:hover {
+  background: rgba(0,0,0,.2);
+}
+table.transfer-detail #page-nav td span {
+  color: #999;
+}
+
+table.item-list {
+  border-collapse: collapse;
+}
+table.item-list thead {
+  border-bottom: 3px double #000;
+}
+table.item-list thead td {
+  border: 1px solid #ccc;
+  font-size: .8rem;
+  font-weight: bold;
+  padding: .3em .6em;
+  text-align: center;
+}
+table.item-list tbody td {
+  border: 1px solid #ccc;
+  font-size: .8rem;
+  padding: .3em .6em;
+}
+table.item-list tbody td a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+html.fixedasset table.item-list {
+  border: 2px solid #000;
+  width: 100%;
+}
+
+#oas-transfer-edit form p.date-range {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  margin: auto auto 0;
+}
+#oas-transfer-edit form p.date-range > * {
+  font-size: .85rem;
+  margin: auto .25em;
+}
+#oas-transfer-edit form p.date-range input {
+  font-size: .8rem;
+  font-style: italic;
+  text-align: center;
+  width: 8em;
+}
