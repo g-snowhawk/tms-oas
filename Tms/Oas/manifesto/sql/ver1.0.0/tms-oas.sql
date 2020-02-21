@@ -110,7 +110,7 @@ CREATE TABLE `TMS_account_items` (
   KEY `TMS_account_items_ibfk_1` (`group_d`),
   KEY `TMS_account_items_ibfk_2` (`userkey`),
   CONSTRAINT `TMS_account_items_ibfk_1` FOREIGN KEY (`group_d`) REFERENCES `TMS_account_group_d` (`group_d`),
-  CONSTRAINT `TMS_account_items_ibfk_2` FOREIGN KEY (`userkey`) REFERENCES `TMS_user` (`id`)
+  CONSTRAINT `TMS_account_items_ibfk_2` FOREIGN KEY (`userkey`) REFERENCES `TMS_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `TMS_transfer` (

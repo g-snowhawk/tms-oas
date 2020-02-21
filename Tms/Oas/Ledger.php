@@ -590,11 +590,11 @@ class Ledger extends Taxation
         $where .= " AND ($sub_where)";
 
         return "SELECT issue_date, page_number, userkey, category, line_number,
-                       CASE WHEN item_code_left = '{$beginningInventory}' THEN '{$$periodendInventory}'
+                       CASE WHEN item_code_left = '{$beginningInventory}' THEN '{$periodendInventory}'
                             ELSE item_code_left 
                         END AS item_code_left, 
                        amount_left, summary, amount_right, 
-                       CASE WHEN item_code_right = '{$beginningInventory}' THEN '{$$periodendInventory}'
+                       CASE WHEN item_code_right = '{$beginningInventory}' THEN '{$periodendInventory}'
                             ELSE item_code_right 
                         END AS item_code_right, 
                        CASE WHEN category = 'A' OR category = 'Z' THEN category
