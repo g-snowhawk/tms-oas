@@ -270,16 +270,10 @@ class Response extends \Tms\Oas\Fixedasset
             }
             $data['price_onhand'] = $this->price_onhand_total;
             $this->pdf->draw($ary, $data, $this->y);
-            //if ($this->price_onhand_total !== (float)self::MEMVALUE) {
             $over[$result['item']] += $this->price_onhand_total;
-            //}
         }
 
-        //foreach ($over as $key => $balance) {
-        //    Tms_Pms_Accounting_Forward::insertForward($tYear, $key, 0-$balance, $this->app->prof->USER('id'), $this->db);
-        //}
-
-        $year = date('Y', strtotime($tYear));
+        $year = date('Y', strtotime("{$tYear}-01-01"));
         $file = $this->getPdfPath($year, 'taxation', 'fixedassets.pdf');
         $locked = ($this->request->POST('locked') === '1') ? true : false;
         $this->outputPdf(basename($file), dirname($file), true, $locked);

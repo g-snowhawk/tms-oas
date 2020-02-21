@@ -34,6 +34,7 @@ class Oas extends User implements PackageInterface
     protected $reduced_tax_rate = null;
 
     protected $pdf;
+    protected $pdf_meta;
 
     /**
      * fonts for TCPDF
@@ -73,6 +74,9 @@ class Oas extends User implements PackageInterface
         $conf_file = $this->privateSavePath() . '/oas_config.json';
         if (file_exists($conf_file)) {
             $this->oas_config = json_decode(file_get_contents($conf_file));
+            if (isset($this->oas_config->pdf_meta)) {
+                $this->pdf_meta = $this->oas_config->pdf_meta;
+            }
         }
     }
 
@@ -276,7 +280,8 @@ class Oas extends User implements PackageInterface
      */
     protected function getPdfPath($year, $category, $fileName)
     {
-        $format = $this->app->cnf('slips:save_format');
+        $format = (!empty($this->oas_config->pdf_save_format))
+            ? $this->oas_config->pdf_save_format : null;
         if (empty($format)) {
             $format = $this->privateSavePath() . '/%s/%s/%s';
         }
@@ -286,8 +291,8 @@ class Oas extends User implements PackageInterface
     public function outputPdf($file, $savePath = null, $display = false, $locked = false)
     {
         // Set Author
-        if ($this->app->cnf('slips:pdf_authorname')) {
-            $this->pdf->SetAuthor($this->app->cnf('slips:pdf_authorname'));
+        if (!empty($this->pdf_meta)) {
+            $this->pdf->setMetaData((array)$this->pdf_meta);
         }
 
         // Security
