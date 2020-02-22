@@ -144,7 +144,8 @@
       <label>出力期間</label>
       <input type="date" name="begin" required><span>〜</span><input type="date" name="end" required>
     </p>
-    <p class="ta-r">
+    <p class="ta-r output-pdf">
+      <label>保存してロック<input type="checkbox" name="locked" value="1"></label>
       <input type="submit" name="s1_submit" value="出力">
     </p>
   </div>

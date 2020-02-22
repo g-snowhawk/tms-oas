@@ -205,9 +205,14 @@ class Response extends \Tms\Oas\Transfer
 
     public function pdf()
     {
+        $locked = ($this->request->param('locked') === '1');
         $category = $this->request->param('category');
         $begin = date("Y-m-d 00:00:00", strtotime($this->request->param('begin')));
         $end   = date("Y-m-d 23:59:59", strtotime($this->request->param('end')));
+        if ($locked) {
+            $begin = date("Y-01-01 00:00:00", strtotime($begin));
+            $end   = date("Y-12-31 23:59:59", strtotime($begin));
+        }
         $closure = function($col) {
             return "SELECT lf.*, ai.item_name AS item_{$col}
                       FROM (SELECT * FROM `table::transfer`
@@ -351,6 +356,17 @@ class Response extends \Tms\Oas\Transfer
             }
         }
 
-        $this->pdf->output($template);
+        if ($locked) {
+            $file_name = [
+                'P' => 'payment',
+                'R' => 'receipt',
+                'T' => 'transfer',
+            ];
+            $year = date('Y', strtotime($begin));
+            $file = $this->getPdfPath($year, 'taxation', $file_name[$category] . '.pdf');
+            $this->outputPdf(basename($file), dirname($file), true, $locked);
+        } else {
+            $this->pdf->output($template);
+        }
     }
 }

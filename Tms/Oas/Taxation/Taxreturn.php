@@ -87,7 +87,7 @@ class Taxreturn extends \Tms\Oas\Taxation
         $year = date('Y', strtotime($tYear));
         $file = $this->getPdfPath($year, 'taxation', 'bluepaper.pdf');
         $locked = ($this->request->POST('locked') === '1') ? true : false;
-        $this->pdf->output('bluepaper.pdf');
+        $this->outputPdf(basename($file), dirname($file), true, $locked);
     }
 
     private function page1($target_year)
@@ -176,7 +176,7 @@ class Taxreturn extends \Tms\Oas\Taxation
             ['font' => $this->mono,   'style' => '',  'size' =>  9, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'zip1',     'suffix' => '', 'x' =>  33.3, 'y' =>   21, 'type' => 'Cell', 'width' => 14.3, 'height' => 5.5, 'align' => 'C', 'flg' => true, 'pitch' => 3.3],
             ['font' => $this->mono,   'style' => '',  'size' =>  9, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'zip2',     'suffix' => '', 'x' =>  51.0, 'y' =>   21, 'type' => 'Cell', 'width' => 19.2, 'height' => 5.5, 'align' => 'C', 'flg' => true, 'pitch' => 3.3],
             ['font' => $this->mincho, 'style' => '',  'size' => 10, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'address1', 'suffix' => '', 'x' =>  30.5, 'y' => 29.0, 'type' => 'Cell', 'width' => 68.5, 'height' => 8.8, 'align' => 'L', 'flg' => true],
-            ['font' => $this->mincho, 'style' => '',  'size' => 10, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'caddress', 'suffix' => '', 'x' =>  30.5, 'y' => 40.0, 'type' => 'Cell', 'width' =>   56, 'height' =>   8, 'align' => 'L', 'flg' => true],
+            ['font' => $this->mincho, 'style' => '',  'size' => 10, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'caddress', 'suffix' => '', 'x' =>  30.5, 'y' => 49.5, 'type' => 'Cell', 'width' =>   56, 'height' =>   8, 'align' => 'L', 'flg' => true],
             ['font' => $this->mincho, 'style' => '',  'size' =>  9, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'rubi',     'suffix' => '', 'x' => 111.5, 'y' => 26.5, 'type' => 'Cell', 'width' =>   68, 'height' =>   7, 'align' => 'L', 'flg' => true, 'pitch' => 3.42],
             ['font' => $this->mincho, 'style' => '',  'size' => 11, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'name',     'suffix' => '', 'x' =>   113, 'y' => 34.5, 'type' => 'Cell', 'width' =>   69, 'height' => 8.3, 'align' => 'L', 'flg' => true],
             ['font' => $this->mincho, 'style' => '',  'size' =>  8, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'works',    'suffix' => '', 'x' =>   111, 'y' => 45.0, 'type' => 'Cell', 'width' =>   23, 'height' => 6.3, 'align' => 'C', 'flg' => true],

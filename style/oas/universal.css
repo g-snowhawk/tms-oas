@@ -210,3 +210,6 @@ html.fixedasset table.item-list {
   text-align: center;
   width: 8em;
 }
+#oas-transfer-edit form p.output-pdf label {
+  font-size: .8rem;
+}
