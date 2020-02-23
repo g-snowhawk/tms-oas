@@ -301,6 +301,10 @@ class Response extends \Tms\Oas\Transfer
             echo $this->db->error();
             exit;
         }
+        if ($max === 0) {
+            echo 'No data';
+            exit;
+        }
 
         $sql .= " WHERE lf.page_number = ?";
 

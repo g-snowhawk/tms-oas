@@ -534,11 +534,11 @@ class Financial extends \Tms\Oas\Taxation
             ];
 
             if ($result['item'] === $this->filter_items['LUMPSUM_DEPRECIABLE_ASSETS']) {
-                $data['quantity'] = '-';
-                $data['acmon'] = null;
+                //$data['quantity'] = '-';
+                //$data['acmon'] = null;
                 $data['type'] = '-';
                 $data['durability'] = '-';
-                $data['rate'] = '1/3';
+                $data['rate'] = '-';
                 $data['months'] = '-';
             }
 

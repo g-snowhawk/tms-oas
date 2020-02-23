@@ -2,7 +2,7 @@
 
 {% block main %}
   <input type="hidden" name="mode" value="oas.fixedasset.response:pdf">
-  <div class="wrapper">
+  <div class="wrapper narrow-labels">
     <h1>固定資産一覧</h1>
     <table class="item-list">
       <thead>
