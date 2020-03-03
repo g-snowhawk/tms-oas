@@ -153,11 +153,11 @@ class Trialbalance extends \Tms\Oas\Taxation
                 );
             }
             $data['item_name'] = $item['item_name'];
-            if (array_key_exists('amount_left', $item)) {
+            if (isset($item['amount_left'])) {
                 $data['amount_left'] += $item['amount_left'];
                 $total['amount_left'] += $item['amount_left'];
             }
-            if (array_key_exists('amount_right', $item)) {
+            if (isset($item['amount_right'])) {
                 $data['amount_right'] += $item['amount_right'];
                 $total['amount_right'] += $item['amount_right'];
             }

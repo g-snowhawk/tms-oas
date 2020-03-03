@@ -78,7 +78,7 @@ class Response extends \Tms\Oas\Transfer
         $this->checkPermission('oas.transfer.'.$privilege_type);
 
         $category = $this->session->param('transfer_category');
-        if (empty($category) || !array_key_exists($category, parent::LINE_COUNT)) {
+        if (empty($category) || !isset(parent::LINE_COUNT[$category])) {
             $category = 'T';
         }
 
