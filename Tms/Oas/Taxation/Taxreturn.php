@@ -77,14 +77,19 @@ class Taxreturn extends \Tms\Oas\Taxation
 
     public function pdf() : void
     {
-        $tYear = $this->request->POST('nendo') . '-01-01';
+        $target_year = $this->request->POST('nendo') . '-01-01';
+        $year = date('Y', strtotime($target_year));
+
+        if ($year === date('Y')) {
+            trigger_error('Today is still in the period.', E_USER_ERROR);
+        }
 
         $this->pdf->loadTemplate("oas/taxation/tax_return_B.pdf");
 
-        $this->page1($tYear);
-        $this->page2($tYear);
+        $this->page1($target_year);
+        $this->page2($target_year);
 
-        $year = date('Y', strtotime($tYear));
+        $year = date('Y', strtotime($target_year));
         $file = $this->getPdfPath($year, 'taxation', 'bluepaper.pdf');
         $locked = ($this->request->POST('locked') === '1') ? true : false;
         $this->outputPdf(basename($file), dirname($file), true, $locked);

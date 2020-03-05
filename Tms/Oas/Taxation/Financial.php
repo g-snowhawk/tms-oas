@@ -31,7 +31,7 @@ class Financial extends \Tms\Oas\Taxation
 
     private $investments = 0;
     private $withdrawals = 0;
-    private $capital = 0;
+    private $deposit = 0;
 
     private $column33 = 0;
     private $column43 = 0;
@@ -76,19 +76,27 @@ class Financial extends \Tms\Oas\Taxation
 
     public function pdf() : void
     {
-        $tYear = $this->request->POST('nendo') . '-01-01';
+        $target_year = $this->request->POST('nendo') . '-01-01';
+        $year = date('Y', strtotime($target_year));
+
+        if ($year === date('Y')) {
+            trigger_error('Today is still in the period.', E_USER_ERROR);
+        }
 
         $this->pdf->loadTemplate("oas/taxation/financial.pdf");
 
-        $this->page2($tYear);
-        $this->page3($tYear);
-        $this->page1($tYear);
+        $this->page2($target_year);
+        $this->page3($target_year);
+        $this->page1($target_year);
         $this->pdf->movePage(3, 1);
-        $this->page4($tYear);
+        $this->page4($target_year);
         $this->pdf->setPage(2, false);
         $this->drawDeduction();
-                
-        $year = date('Y', strtotime($tYear));
+
+        $amount = $this->withdrawals + $this->deposit + $this->column43 - $this->investments;
+        $item_code = $this->filter_items['DEPOSIT'];
+        $this->transferAmount($year, $item_code, $amount);
+ 
         $file = $this->getPdfPath($year, 'taxation', 'financialsheet.pdf');
         $locked = ($this->request->POST('locked') === '1') ? true : false;
         $this->outputPdf(basename($file), dirname($file), true, $locked);
@@ -189,10 +197,10 @@ class Financial extends \Tms\Oas\Taxation
             ['font' => $this->mincho, 'style' => '', 'size' => 8, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'eDay',   'suffix' => '', 'x' => 179.0, 'y' => 30.4, 'type' => 'Cell', 'width' => 9.8, 'height' => 6.2, 'align' => 'R', 'flg' => true],
         ];
         $this->pdf->draw($ary, $data);
-        $this->drawPlus($year);
-        $this->drawPlus($year + 1, $year);
-        $this->drawMinus($year);
-        $this->drawMinus($year + 1, $year);
+        $this->drawCreditor($year);
+        $this->drawCreditor($year + 1, $year);
+        $this->drawDebit($year);
+        $this->drawDebit($year + 1, $year);
     }
 
     private function drawIncomeDetail($target_year)
@@ -868,7 +876,7 @@ class Financial extends \Tms\Oas\Taxation
         return $total;
     }
 
-    private function drawPlus($year, $last_year = null)
+    private function drawCreditor($year, $last_year = null)
     {
         $data  = ['dummy' => null];
         $ary   = [];
@@ -966,7 +974,7 @@ class Financial extends \Tms\Oas\Taxation
         return true;
     }
 
-    private function drawMinus($year, $last_year = null)
+    private function drawDebit($year, $last_year = null)
     {
         $total = 0;
         $ary  = [];
@@ -992,10 +1000,13 @@ class Financial extends \Tms\Oas\Taxation
             if (!isset($data[$unit['code']]))  {
                 $data[$unit['code']] = 0;
             }
-            $data[$unit['code']] += $unit['amount'];
+
             if (!is_null($last_year) && $unit['code'] === $deposit) {
-                continue;
+                $unit['amount'] = $this->deposit;
             }
+
+            $data[$unit['code']] += $unit['amount'];
+
             $total += $unit['amount'];
         }
         if (!is_null($last_year)) {
@@ -1017,20 +1028,26 @@ class Financial extends \Tms\Oas\Taxation
                 if (!isset($data[$unit['code']]))  {
                     $data[$unit['code']] = 0;
                 }
+
+                if ($unit['code'] === $deposit) {
+                    $data[$unit['code']] += $this->deposit;
+                    continue;
+                }
+
                 $data[$unit['code']] += $unit['amount'];
                 $total += $unit['amount'];
             }
             $data['no33'] = $this->column33;
             $data['no43'] = $this->column43;
             $total += $data['no43'];
-            $data[$deposit] = $this->capital;
-            $total += $data[$deposit];
+            //$data[$deposit] = $this->deposit;
+            //$total += $data[$deposit];
             //
-            $kari = (isset($data[$withdrawals])) ? (int)$data[$withdrawals] : 0;
-            $this->capital = $kari + (int)$data[$deposit] + (int)$data['no33'] - $this->investments;
+            $this->withdrawals = (isset($data[$withdrawals])) ? (int)$data[$withdrawals] : 0;
+            //$this->deposit = $kari + (int)$data[$deposit] + (int)$data['no33'] - $this->investments;
         } else {
             $data['no43'] = null;
-            $this->capital = $data[$deposit];
+            $this->deposit = $data[$deposit];
         }
 
         $w = 30;

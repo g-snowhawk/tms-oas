@@ -62,22 +62,53 @@ class Trialbalance extends \Tms\Oas\Taxation
 
     public function pdf() : void
     {
-        $tYear = $this->app->request->POST('nendo') . '-01-01';
+        $target_year = strtotime($this->app->request->param('nendo') . '-01-01');
 
         $this->pdf->loadTemplate("oas/taxation/trialbalance.pdf");
         $tplIdx = $this->pdf->addPageFromTemplate(1); 
 
-        $sql = $this->SQL('left', $tYear);
-        if (!$this->db->query($sql)) {
-            trigger_error($this->db->error());
-            return;
-        }
+        $sql = function($column, $this_year) {
+            $category = ($this_year) ? " AND category <> 'A'" : '';
+            $versus = ($column === 'left') ? 'right' : 'left';
+
+            $category = "";
+            $subquery = "SELECT SUM(amount_{$column}) AS amount_{$column},
+                                MIN(item_code_{$column}) AS item_code,
+                                MIN(item_code_{$versus}) AS rev_code
+                           FROM `table::transfer`
+                          WHERE userkey = ?{$category}
+                            AND (issue_date >= ? AND issue_date <= ?)
+                          GROUP BY item_code_{$column}";
+
+            return "SELECT t.amount_{$column},
+                           t.rev_code,
+                           a.item_code,
+                           a.item_name,
+                           a.alias,
+                           a.note
+                      FROM ({$subquery}) t
+                     INNER JOIN `table::account_items` a
+                             ON t.item_code = a.item_code
+                     ORDER BY a.item_code";
+        };
+
+        $this_year = (date('Y') === date('Y', $target_year));
+        $date = ($this_year) ? date('m-d') : '12-31';
+
+        $start = date("Y-01-01 00:00:00", $target_year);
+        $end   = date("Y-{$date} 23:59:59", $target_year);
+
+        $replaces = [$this->uid, $start, $end];
 
         $purchase = 0;
         $purchaseCode = $this->filter_items['PURCHASE'];
         $beginningInventory = $this->filter_items['BEGINNING_INVENTORY'];
         $periodEndInventory = $this->filter_items['PERIODEND_INVENTORY'];
 
+        if (!$this->db->query($sql('left', $this_year), $replaces)) {
+            trigger_error($this->db->error());
+            return;
+        }
         while ($result = $this->app->db->fetch()) {
             $item_code = $result['item_code'];
             if ($item_code === $beginningInventory) {
@@ -88,9 +119,11 @@ class Trialbalance extends \Tms\Oas\Taxation
             }
             $items[$item_code]['item_name'] = ($item_code === $periodEndInventory) ? $result['alias'] : $result['item_name'];
             $items[$item_code]['amount_left'] += $result['amount_left'];
+            $items[$item_code]['note'] = $result['note'];
         }
-        $sql = $this->SQL('right', $tYear);
-        if (!$this->app->db->query($sql)) {
+
+        if (!$this->app->db->query($sql('right', $this_year), $replaces)) {
+            trigger_error($this->db->error());
             return;
         }
         while ($result = $this->app->db->fetch()) {
@@ -109,8 +142,10 @@ class Trialbalance extends \Tms\Oas\Taxation
             }
             $items[$item_code]['item_name'] = ($item_code === $periodEndInventory) ? $result['alias'] : $result['item_name'];
             $items[$item_code]['amount_right'] += $result['amount_right'];
+            $items[$item_code]['note'] = $result['note'];
         }
         ksort($items);
+
         $item_name = '';
         $y = 44;
         $total = array(
@@ -120,39 +155,41 @@ class Trialbalance extends \Tms\Oas\Taxation
             'balance_left'  => 0,
             'balance_right' => 0,
         );
+
         foreach ($items as $key => $item) {
-            if ($item['item_name'] != $item_name) {
-                if (!empty($item_name)) {
-                    $balance = $data['amount_left'] - $data['amount_right'];
-                    if ($balance > 0) {
-                        $total['balance_left'] += abs($balance);
-                    } else {
-                        $total['balance_right'] += abs($balance);
-                    }
-                    if ($data['amount_left']   == 0) $data['amount_left']   = '';
-                    if ($data['amount_right']  == 0) $data['amount_right']  = '';
-                    if ($data['balance_left']  == 0) $data['balance_left']  = '';
-                    if ($data['balance_right'] == 0) $data['balance_right'] = '';
-
-                    $map = [
-                        ['font' => $this->mincho, 'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'item_name',     'suffix' => '', 'x' =>  20.0, 'y' => $y, 'type' => 'Cell', 'width' => 40, 'height' => 8, 'align' => 'L', 'flg' => true],
-                        ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'amount_left',   'suffix' => '', 'x' =>  62.7, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => 8, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
-                        ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'amount_right',  'suffix' => '', 'x' =>  94.2, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => 8, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
-                        ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'balance_left',  'suffix' => '', 'x' => 125.7, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => 8, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
-                        ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'balance_right', 'suffix' => '', 'x' => 157.2, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => 8, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
-                    ];
-
-                    $this->pdf->draw($map, $data);
-                    $y += 8;
+            if (!empty($item_name)) {
+                $balance = $data['amount_left'] - $data['amount_right'];
+                if ($balance > 0) {
+                    $total['balance_left'] += abs($balance);
+                } else {
+                    $total['balance_right'] += abs($balance);
                 }
-                $data = array(
-                    'amount_left'   => 0,
-                    'amount_right'  => 0,
-                    'balance_left'  => 0,
-                    'balance_right' => 0,
-                );
+                if ($data['amount_left']   == 0) $data['amount_left']   = '';
+                if ($data['amount_right']  == 0) $data['amount_right']  = '';
+                if ($data['balance_left']  == 0) $data['balance_left']  = '';
+                if ($data['balance_right'] == 0) $data['balance_right'] = '';
+
+                $map = [
+                    ['font' => $this->mincho, 'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'item_name',     'suffix' => '', 'x' =>  20.0, 'y' => $y, 'type' => 'Cell', 'width' => 40, 'height' => 8, 'align' => 'L', 'flg' => true],
+                    ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'amount_left',   'suffix' => '', 'x' =>  62.7, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => 8, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+                    ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'amount_right',  'suffix' => '', 'x' =>  94.2, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => 8, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+                    ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'balance_left',  'suffix' => '', 'x' => 125.7, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => 8, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+                    ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'balance_right', 'suffix' => '', 'x' => 157.2, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => 8, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+                ];
+
+                $this->pdf->draw($map, $data);
+                $y += 8;
             }
+            $data = array(
+                'amount_left'   => 0,
+                'amount_right'  => 0,
+                'balance_left'  => 0,
+                'balance_right' => 0,
+            );
             $data['item_name'] = $item['item_name'];
+            if (!empty($item['note'])) {
+                $data['item_name'] .= ' (' . $item['note'] . ')';
+            }
             if (isset($item['amount_left'])) {
                 $data['amount_left'] += $item['amount_left'];
                 $total['amount_left'] += $item['amount_left'];
@@ -167,7 +204,7 @@ class Trialbalance extends \Tms\Oas\Taxation
             } else {
                 $data['balance_right'] = abs($balance);
             }
-            $item_name = $item['item_name'];
+            $item_name = $data['item_name'];
         }
         $balance = $data['amount_left'] - $data['amount_right'];
         if ($balance > 0) {
@@ -202,32 +239,5 @@ class Trialbalance extends \Tms\Oas\Taxation
         }
 
         $this->pdf->output('trialbalance.pdf');
-    }
-
-    public function SQL()
-    {
-        $args = func_get_args();
-        $lod = filter_var($args[0], FILTER_SANITIZE_STRING);
-        $at = filter_var($args[1], FILTER_SANITIZE_STRING);
-
-        if ($at) {
-            $start = date("Y-01-01 00:00:00", strtotime($at));
-            $end   = date("Y-12-31 23:59:59", strtotime($at));
-            $where = " AND (issue_date >= " . $this->db->quote($start) .
-                     " AND issue_date <= " . $this->db->quote($end) . ")";
-        }
-        $rev = ($lod === 'left') ? 'right' : 'left';
-        return "SELECT SUM(td.amount_$lod) AS amount_$lod,
-                       MIN(td.item_code_{$rev}) AS rev_code,
-                       MIN(ai.item_name) AS item_name,
-                       MIN(ai.alias) AS alias,
-                       MIN(ai.item_code) AS item_code
-                  FROM `" . $this->db->TABLE('transfer') . "` td
-                  JOIN `" . $this->db->TABLE('account_items') . "` ai
-                    ON td.item_code_$lod = ai.item_code
-                 WHERE td.userkey=" . $this->db->quote($this->uid) . "
-                       $where
-              GROUP BY ai.item_code
-              ORDER BY ai.item_code";
     }
 }
