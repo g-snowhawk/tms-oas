@@ -131,4 +131,21 @@ class Taxation extends \Tms\Oas
         ];
         return $this->db->insert('transfer', $data);
     }
+
+    public function updateAccountBook($year, array $data): bool
+    {
+        $locked = $this->db->get('locked', 'account_book', 'userkey = ? AND year = ?', [$this->uid, $year]);
+        if ($locked === '1') {
+            return true;
+        }
+
+        $data['year'] = $year;
+        $data['userkey'] = $this->uid;
+        if (false === $this->db->merge('account_book', $data, ['modify_date'])) {
+            trigger_error($this->db->error());
+            return false;
+        }
+
+        return true;
+    }
 }

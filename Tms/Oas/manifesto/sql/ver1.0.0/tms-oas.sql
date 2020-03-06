@@ -1,7 +1,7 @@
-CREATE TABLE IF NOT EXISTS `TMS_account_group_a` (
 CREATE TABLE IF NOT EXISTS `TMS_account_book` (
   `year` int NOT NULL,
   `userkey` int unsigned NOT NULL,
+  `locked` enum('0','1') NOT NULL DEFAULT '0',
   `bol_01` int DEFAULT NULL,
   `bol_02` int DEFAULT NULL,
   `bol_03` int DEFAULT NULL,
@@ -35,9 +35,25 @@ CREATE TABLE IF NOT EXISTS `TMS_account_book` (
   `col_22` int DEFAULT NULL,
   `col_23` int DEFAULT NULL,
   `col_24` int DEFAULT NULL,
-  PRIMARY KEY (`year`),
+  `modify_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`year`,`userkey`),
+  KEY `TMS_account_book_ibfk_1` (`userkey`),
   CONSTRAINT `TMS_account_book_ibfk_1` FOREIGN KEY (`userkey`) REFERENCES `TMS_user` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `TMS_social_insurance` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `year` int NOT NULL,
+  `userkey` int unsigned NOT NULL,
+  `colnumber` varchar(8) NOT NULL,
+  `title` varchar(128) NOT NULL,
+  `amount` int NOT NULL,
+  `modify_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `TMS_social_insurance_uk_1` (`year`,`userkey`,`colnumber`,`title`),
+  KEY `TMS_social_insurance_ibfk_1` (`userkey`),
+  CONSTRAINT `TMS_social_insurance_ibfk_1` FOREIGN KEY (`userkey`) REFERENCES `TMS_user` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `TMS_account_group_a` (
   `group_a` varchar(4) NOT NULL,
@@ -156,7 +172,7 @@ CREATE TABLE `TMS_fixed_assets` (
   CONSTRAINT `TMS_fixed_assets_ibfk_1` FOREIGN KEY (`userkey`) REFERENCES `TMS_user` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `tms_fixed_assets_detail` (
+CREATE TABLE `TMS_fixed_assets_detail` (
   `id` int NOT NULL,
   `year` varchar(4) NOT NULL,
   `month` varchar(2) NOT NULL DEFAULT '',

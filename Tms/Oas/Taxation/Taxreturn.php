@@ -29,6 +29,42 @@ class Taxreturn extends \Tms\Oas\Taxation
         'color' => [0, 66, 99]
     ];
 
+    const PDF_ELLIPSE_MAP = [
+        'gender' => [
+            1 => 103.1,
+            2 => 108.0,
+        ],
+        'formtype' => [
+            1 => 93.0,
+        ],
+        'phoneplace' => [
+            1 => 161.5,
+            2 => 170.0,
+            3 => 179.0,
+        ],
+        'bank_type' => [
+            1 => ['x' => 147.8, 'y' => 241.0],
+            2 => ['x' => 147.8, 'y' => 243.4],
+            3 => ['x' => 153.2, 'y' => 243.4],
+            4 => ['x' => 147.8, 'y' => 245.6],
+            5 => ['x' => 153.2, 'y' => 245.6],
+        ],
+        'branch_type' => [
+            1 => ['x' => 186.8, 'y' => 241.0],
+            2 => ['x' => 192.3, 'y' => 241.0],
+            3 => ['x' => 187.8, 'y' => 243.4],
+            4 => ['x' => 186.8, 'y' => 245.6],
+            5 => ['x' => 192.3, 'y' => 245.6],
+        ],
+        'account_type' => [
+            1 => 161.2,
+            2 => 168.8,
+            3 => 176.3,
+            4 => 183.8,
+            5 => 191.4,
+        ],
+    ];
+
     private $pension = 0;
     private $mutualaid = 0;
     private $lifeinsurance = 0;
@@ -205,10 +241,13 @@ class Taxreturn extends \Tms\Oas\Taxation
         ];
         $this->pdf->draw($ary, $data);
 
+        $x1 = self::PDF_ELLIPSE_MAP['gender'][$this->oas_config->gender];
+        $x2 = self::PDF_ELLIPSE_MAP['formtype'][1];
+        $x3 = self::PDF_ELLIPSE_MAP['phoneplace'][$this->oas_config->phoneplace];
         $line_map = [
-            ['name' => 'circle',  'x' => 103.2, 'y' =>   49, 'r' => 1.6, 'astart' => 0, 'angend' => 360, 'type' => 'Circle', 'style' => 'D', 'line_style' => self::LINE_STYLE],
-            ['name' => 'circle',  'x' =>  93.0, 'y' =>   60, 'r' => 2,   'astart' => 0, 'angend' => 360, 'type' => 'Circle', 'style' => 'D', 'line_style' => self::LINE_STYLE],
-            ['name' => 'ellipse', 'x' => 170.0, 'y' => 51.8, 'rx' => 4, 'ry' => 1.6, 'angle' => 0, 'astart' => 0, 'afinish' => 360, 'type' => 'Ellipse', 'style' => 'D', 'line_style' => self::LINE_STYLE],
+            ['name' => 'circle',  'x' => $x1, 'y' =>   49, 'r' => 1.6, 'astart' => 0, 'angend' => 360, 'type' => 'Circle', 'style' => 'D', 'line_style' => self::LINE_STYLE],
+            ['name' => 'circle',  'x' => $x2, 'y' =>   60, 'r' => 2,   'astart' => 0, 'angend' => 360, 'type' => 'Circle', 'style' => 'D', 'line_style' => self::LINE_STYLE],
+            ['name' => 'ellipse', 'x' => $x3, 'y' => 51.8, 'rx' => 4, 'ry' => 1.6, 'angle' => 0, 'astart' => 0, 'afinish' => 360, 'type' => 'Ellipse', 'style' => 'D', 'line_style' => self::LINE_STYLE],
         ];
         $this->pdf->draw($line_map, ['circle' => 1, 'ellipse' => 1]);
     }
@@ -230,10 +269,16 @@ class Taxreturn extends \Tms\Oas\Taxation
         ];
         $this->pdf->draw($ary, $data);
 
+        $x1 = self::PDF_ELLIPSE_MAP['bank_type'][$this->oas_config->bank_type]['x'];
+        $x2 = self::PDF_ELLIPSE_MAP['branch_type'][$this->oas_config->branch_type]['x'];
+        $x3 = self::PDF_ELLIPSE_MAP['account_type'][$this->oas_config->account_type];
+        $y1 = self::PDF_ELLIPSE_MAP['bank_type'][$this->oas_config->bank_type]['y'];
+        $y2 = self::PDF_ELLIPSE_MAP['branch_type'][$this->oas_config->branch_type]['y'];
+        $y3 = 253.3;
         $line_map = [
-            ['name' => 'ellipse', 'x' => 147.8, 'y' => 241.0, 'rx' => 2.6, 'ry' => 1.6, 'angle' => 0, 'astart' => 0, 'afinish' => 360, 'type' => 'Ellipse', 'style' => 'D', 'line_style' => self::LINE_STYLE],
-            ['name' => 'ellipse', 'x' => 192.3, 'y' => 241.0, 'rx' => 2.5, 'ry' => 1.6, 'angle' => 0, 'astart' => 0, 'afinish' => 360, 'type' => 'Ellipse', 'style' => 'D', 'line_style' => self::LINE_STYLE],
-            ['name' => 'circle',  'x' => 161.2, 'y' => 253.3, 'r' => 1.5, 'astart' => 0, 'angend' => 360, 'type' => 'Circle', 'style' => 'D', 'line_style' => self::LINE_STYLE],
+            ['name' => 'ellipse', 'x' => $x1, 'y' => $y1, 'rx' => 2.6, 'ry' => 1.6, 'angle' => 0, 'astart' => 0, 'afinish' => 360, 'type' => 'Ellipse', 'style' => 'D', 'line_style' => self::LINE_STYLE],
+            ['name' => 'ellipse', 'x' => $x2, 'y' => $y2, 'rx' => 2.5, 'ry' => 1.6, 'angle' => 0, 'astart' => 0, 'afinish' => 360, 'type' => 'Ellipse', 'style' => 'D', 'line_style' => self::LINE_STYLE],
+            ['name' => 'circle',  'x' => $x3, 'y' => $y3, 'r' => 1.5, 'astart' => 0, 'angend' => 360, 'type' => 'Circle', 'style' => 'D', 'line_style' => self::LINE_STYLE],
         ];
         $this->pdf->draw($line_map, ['circle' => 1, 'ellipse' => 1]);
     }
@@ -252,7 +297,7 @@ class Taxreturn extends \Tms\Oas\Taxation
         $total = 0;
         $data = [];
         foreach ((array)$result as $key => $val) {
-            if ($key === 'year' || $key === 'userkey') {
+            if (in_array($key, ['year','userkey','locked','modify_date'])) {
                 continue;
             }
             if ($key === 'col_01') $step++;
@@ -346,7 +391,7 @@ class Taxreturn extends \Tms\Oas\Taxation
         $ary[] = ['font' => $this->mono, 'style' => '', 'size' => 11, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'col_47', 'suffix' => '', 'x' => $x, 'y' => $y, 'type' => 'Cell', 'width' => 34.5, 'height' => $h, 'align' => 'R', 'flg' => true, 'pitch' => $t];
         $y += $h * 4 + .22;
 
-        $data['col_51'] = 650000;
+        $data['col_51'] = $this->oas_config->blue_return_deduction;
         $ary[] = ['font' => $this->mono, 'style' => '', 'size' => 11, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'col_51', 'suffix' => '', 'x' => $x, 'y' => $y, 'type' => 'Cell', 'width' => $w, 'height' => $h, 'align' => 'R', 'flg' => true, 'pitch' => $t];
 
         $this->pdf->draw($ary, $data);

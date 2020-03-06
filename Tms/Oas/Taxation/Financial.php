@@ -22,9 +22,6 @@ use Tms\Pdf;
  */
 class Financial extends \Tms\Oas\Taxation
 {
-    const TEXT_COLOR = [0,66,99];
-    const BASIC_DEDUCTION = 650000;
-
     private $sum_income = 0;
     private $sum_buying = 0;
     private $sum_fixedasset = 0;
@@ -117,7 +114,7 @@ class Financial extends \Tms\Oas\Taxation
         ];
         $data['no33'] = $data['no07'] - $cost;
         $data['no43'] = $data['no33'] + $data['no37'] - $data['no42'];
-        $data['no44'] = min($data['no43'], self::BASIC_DEDUCTION);
+        $data['no44'] = min($data['no43'], $this->oas_config->blue_return_deduction);
         $data['no45'] = $data['no43'] - $data['no44'];
         $ary = [
             ['font' => $this->mono, 'style' => '', 'size' => 10, 'color' => self::TEXT_COLOR, 'prefix' => '', 'name' => 'no07', 'suffix' => '', 'x' =>  59.5, 'y' => 125.5, 'type' => 'Cell', 'width' => 44.7, 'height' => 6.16, 'align' => 'R', 'flg' => true, 'pitch' => 3.0],
@@ -128,17 +125,13 @@ class Financial extends \Tms\Oas\Taxation
         ];
         $this->pdf->draw($ary, $data);
 
-        $sql = "SELECT COUNT(year) AS cnt 
-                  FROM `table::account_book`
-                 WHERE year = ?";
-
+        $amounts = [
+            'bol_01' => $income,
+            'col_01' => $data['no45'],
+            'col_20' => $this->oas_config->basic_deduction,
+        ];
         $year = date('Y', strtotime($target_year));
-        $exists = $this->db->query($sql, [$year])->fetchColumn(0);
-
-        $sql = ($exists > 0) 
-            ? "UPDATE `table::account_book` SET bol_01 = ?, col_01 = ?  WHERE userkey = ? AND year = ?"
-            : "INSERT INTO `table::account_book` (bol_01, col_01, userkey, year) VALUES (?,?,?,?)";
-        if (false === $this->db->query($sql, [$income, $data['no45'], $this->uid, $year])) {
+        if (false === $this->updateAccountBook($year, $amounts)) {
             trigger_error($this->db->error());
         }
 
@@ -238,7 +231,7 @@ class Financial extends \Tms\Oas\Taxation
         $total = 0;
         foreach ($result as $unit) {
             $amount = $unit['amount'];
-	    if (isset($umount[$unit['month']])) {
+            if (isset($umount[$unit['month']])) {
                 $amount -= $umount[$unit['month']];
             }
             $data[$unit['month']] = number_format($amount);
@@ -285,8 +278,10 @@ class Financial extends \Tms\Oas\Taxation
             return false;
         }
         $result = $this->db->fetch();
-        $data[$item_code] = $result['amount'];
-        $total += $result['amount'];
+        if (is_array($result)) {
+            $data[$item_code] = $result['amount'];
+            $total += $result['amount'];
+        }
         $ary[] = [
             'font' => $this->mono,
             'style' => '',
@@ -312,8 +307,10 @@ class Financial extends \Tms\Oas\Taxation
             return false;
         }
         $result = $this->db->fetch();
-        $data[$item_code] = $result['amount'];
-        $total += $result['amount'];
+        if (is_array($result)) {
+            $data[$item_code] = $result['amount'];
+            $total += $result['amount'];
+        }
         $ary[] = [
             'font' => $this->mono,
             'style' => '',
@@ -1084,7 +1081,7 @@ class Financial extends \Tms\Oas\Taxation
             'no09a' => 0 
         );
 
-        $data['no09'] = number_format(min(self::BASIC_DEDUCTION - (int)$data['no08'], $this->column43));
+        $data['no09'] = number_format(min($this->oas_config->blue_return_deduction - (int)$data['no08'], $this->column43));
         $data['no07'] = number_format($this->column43);
 
         $ary = [

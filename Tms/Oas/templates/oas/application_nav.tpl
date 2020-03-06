@@ -10,6 +10,7 @@
 <li id="oas-taxation"><a href="?mode=srm.receipt.response">税務処理</a>
   <ul>
     <li><a href="?mode=oas.taxation.trialbalance">合計残高試算表</a></li>
+    <li><a href="?mode=oas.taxation.socialinsurance">社会保険料等</a></li>
     <li><a href="?mode=oas.taxation.financial">決算書作成</a></li>
     <li><a href="?mode=oas.taxation.taxreturn">青色申告書作成</a></li>
   </ul>

@@ -213,3 +213,33 @@ html.fixedasset table.item-list {
 #oas-transfer-edit form p.output-pdf label {
   font-size: .8rem;
 }
+
+#oas-taxation-socialinsurance table.data-list {
+  border-collapse: collapse;
+  margin-top: .5em;
+  width: 100%;
+}
+#oas-taxation-socialinsurance table.data-list tr:nth-child(even) {
+  background-color: #efefef;
+}
+#oas-taxation-socialinsurance table.data-list td {
+  width: 50%;
+}
+#oas-taxation-socialinsurance table.data-list td {
+  font-size: .9rem;
+  padding: .6em;
+}
+#oas-taxation-socialinsurance table.data-list td:nth-child(2) {
+  text-align: right;
+}
+#oas-taxation-socialinsurance table.data-list td:nth-child(2) i {
+  margin-right: .25em;
+}
+#oas-taxation-socialinsurance table.data-list td:last-child {
+  white-space: nowrap;
+  width: auto;
+}
+#oas-taxation-socialinsurance table.data-list td:last-child a {
+  color: #f66;
+  text-decoration: none;
+}
