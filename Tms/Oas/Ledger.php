@@ -786,11 +786,7 @@ class Ledger extends Taxation
 
             $fw = [];
             $fw['day'] = date('t', strtotime($this->request->POST('nendo') . "-{$i}-01"));
-            $fw['summary'] = ($key > 8000 || in_array($key, [1129,1139,1891,4891,7111])) ? Lang::translate('LG_THIS_STAGE') : Lang::translate('LG_NEXT_STAGE');
-
-            if ($during) {
-                $fw['summary'] = Lang::translate('LG_NEXT');
-            }
+            $fw['summary'] = Lang::translate('LG_NEXT');
 
             $fwKey = ($balance > 0) ? 'amount_left' : 'amount_right';
             $fw[$fwKey] = abs($balance);
