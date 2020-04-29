@@ -76,6 +76,9 @@ class Ledger extends Taxation
         $tYear = $this->request->POST('nendo') . '-01-01';
         $nYear = $this->request->POST('nendo') + 1;
 
+        $current_year = date('Y-01-01');
+        $during = ($tYear === $current_year);
+
         $this->pdf->loadTemplate("oas/ledger.pdf");
 
         $sql = "SELECT * FROM `table::account_items`";
@@ -194,6 +197,15 @@ class Ledger extends Taxation
                             $dayAlign = "R";
                         }
                     } else {
+
+                        if ($month > 0 && $m - $month > 1) {
+                            $this->fillMonths(
+                                $month + 1, $m - 1, $balance, $lod, $dayAlign,
+                                $m_total_left, $m_total_right, $total_left, $total_right,
+                                $y, $lineNo
+                            );
+                        }
+
                         $data['month'] = $m;
                         $data['day']   = $d;
                         $dayAlign = "R";
@@ -506,6 +518,11 @@ class Ledger extends Taxation
                     $fw = [];
                     $fw['day'] = date('t', strtotime($this->request->POST('nendo') . "-{$month}-01"));
                     $fw['summary'] = ($key > 8000 || in_array($key, [1129,1139,1891,4891,7111])) ? Lang::translate('LG_THIS_STAGE') : Lang::translate('LG_NEXT_STAGE');
+
+                    if ($during) {
+                        $fw['summary'] = Lang::translate('LG_NEXT');
+                    }
+
                     $fwKey = ($balance > 0) ? 'amount_left' : 'amount_right';
                     $fw[$fwKey] = abs($balance);
                     //
@@ -549,6 +566,17 @@ class Ledger extends Taxation
                     $this->doubleLineLong($y);
 
                     $data['month'] = null;
+
+                    // Fill monthes
+                    if ($during && $month > 0) {
+                        $end = date('n');
+                        $this->fillMonths(
+                            $month + 1, $end, $balance, $lod, $dayAlign,
+                            $m_total_left, $m_total_right, $total_left, $total_right,
+                            $y, $lineNo
+                        );
+                    }
+
                 }
 
                 if (in_array($key, $this->filter_items['FORWARD_1'])) {
@@ -723,5 +751,86 @@ class Ledger extends Taxation
             ['name' => 'line', 'x' => 79, 'y' => $y2, 'x2' => 200, 'y2' => $y2, 'type' => 'Line', 'style' => $style],
         ];
         $this->pdf->draw($ary, $fw);
+    }
+
+    private function fillMonths($start, $end, $balance, $lod, $dayAlign, &$m_total_left, &$m_total_right, &$total_left, &$total_right, &$y, &$lineNo)
+    {
+        for ($i = $start; $i <= $end; $i++) {
+            $fw = [
+                'month' => $i,
+                'day' => '1',
+                'summary' => Lang::translate('LG_PREV'),
+            ];
+            $fwKey = ($balance < 0) ? 'amount_left' : 'amount_right';
+            $fw[$fwKey] = abs($balance);
+            $fw['lod'] = $lod;
+            $fw['balance'] = abs($balance);
+            //
+            if ($balance > 0) {
+                $m_total_right += abs($balance);
+            } else {
+                $m_total_left += abs($balance);
+            }
+            $ary = [
+                ['font' => $this->mincho, 'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'month',        'suffix' => '', 'x' =>     10, 'y' => $y, 'type' => 'Cell', 'width' =>  10, 'height' => self::LINE_HEIGHT, 'align' => 'R', 'flg' => true],
+                ['font' => $this->mincho, 'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'day',          'suffix' => '', 'x' =>     20, 'y' => $y, 'type' => 'Cell', 'width' => 6.2, 'height' => self::LINE_HEIGHT, 'align' => $dayAlign, 'flg' => true],
+                ['font' => $this->mincho, 'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'summary',      'suffix' => '', 'x' =>     26, 'y' => $y, 'type' => 'Cell', 'width' =>  47, 'height' => self::LINE_HEIGHT, 'align' => 'L', 'flg' => true],
+                ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'amount_left',  'suffix' => '', 'x' =>  77.75, 'y' => $y, 'type' => 'Cell', 'width' =>  33, 'height' => self::LINE_HEIGHT, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+                ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'amount_right', 'suffix' => '', 'x' => 114.75, 'y' => $y, 'type' => 'Cell', 'width' =>  33, 'height' => self::LINE_HEIGHT, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+                ['font' => $this->mincho, 'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'lod',          'suffix' => '', 'x' =>    153, 'y' => $y, 'type' => 'Cell', 'width' =>   6, 'height' => self::LINE_HEIGHT, 'align' => 'C', 'flg' => true],
+                ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'balance',      'suffix' => '', 'x' => 157.75, 'y' => $y, 'type' => 'Cell', 'width' =>  33, 'height' => self::LINE_HEIGHT, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+            ];
+            $this->pdf->draw($ary, $fw);
+            $y += self::LINE_HEIGHT;
+            $lineNo++;
+
+            $fw = [];
+            $fw['day'] = date('t', strtotime($this->request->POST('nendo') . "-{$i}-01"));
+            $fw['summary'] = ($key > 8000 || in_array($key, [1129,1139,1891,4891,7111])) ? Lang::translate('LG_THIS_STAGE') : Lang::translate('LG_NEXT_STAGE');
+
+            if ($during) {
+                $fw['summary'] = Lang::translate('LG_NEXT');
+            }
+
+            $fwKey = ($balance > 0) ? 'amount_left' : 'amount_right';
+            $fw[$fwKey] = abs($balance);
+            //
+            if ($balance < 0) {
+                $m_total_right += abs($balance);
+            } else {
+                $m_total_left += abs($balance);
+            }
+            $ary = [
+                ['font' => $this->mincho, 'style' => '', 'size' => 9, 'color' => [255, 0, 0], 'prefix' => '', 'name' => 'day',          'suffix' => '', 'x' =>     20, 'y' => $y, 'type' => 'Cell', 'width' => 6.2, 'height' => self::LINE_HEIGHT, 'align' => $dayAlign, 'flg' => true],
+                ['font' => $this->mincho, 'style' => '', 'size' => 9, 'color' => [255, 0, 0], 'prefix' => '', 'name' => 'summary',      'suffix' => '', 'x' =>     26, 'y' => $y, 'type' => 'Cell', 'width' =>  47, 'height' => self::LINE_HEIGHT, 'align' => 'L', 'flg' => true],
+                ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [255, 0, 0], 'prefix' => '', 'name' => 'amount_left',  'suffix' => '', 'x' =>  77.75, 'y' => $y, 'type' => 'Cell', 'width' =>  33, 'height' => self::LINE_HEIGHT, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+                ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [255, 0, 0], 'prefix' => '', 'name' => 'amount_right', 'suffix' => '', 'x' => 114.75, 'y' => $y, 'type' => 'Cell', 'width' =>  33, 'height' => self::LINE_HEIGHT, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+            ];
+            $this->pdf->draw($ary, $fw);
+            $y += self::LINE_HEIGHT;
+            $lineNo++;
+
+            // Draw separator
+            $this->singleLineShort($y);
+
+            $fw = [
+                'summary' => "({$i}" . Lang::translate('LG_MONTH') . ")",
+                'amount_left' => $m_total_left,
+                'amount_right' => $m_total_right
+            ];
+            $ary = [
+                ['font' => $this->mincho, 'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'summary',      'suffix' => '', 'x' =>     26, 'y' => $y, 'type' => 'Cell', 'width' => 47, 'height' => self::LINE_HEIGHT, 'align' => 'R', 'flg' => true],
+                ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'amount_left',  'suffix' => '', 'x' =>  77.75, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => self::LINE_HEIGHT, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+                ['font' => $this->mono,   'style' => '', 'size' => 9, 'color' => [0, 0, 0], 'prefix' => '', 'name' => 'amount_right', 'suffix' => '', 'x' => 114.75, 'y' => $y, 'type' => 'Cell', 'width' => 33, 'height' => self::LINE_HEIGHT, 'align' => 'R', 'flg' => true, 'pitch' => 1.65],
+            ];
+            $this->pdf->draw($ary, $fw);
+            $y += self::LINE_HEIGHT;
+            $lineNo++;
+            $total_left += $m_total_left;
+            $total_right += $m_total_right;
+
+            // Draw separator
+            $this->doubleLineLong($y);
+        }
     }
 }
