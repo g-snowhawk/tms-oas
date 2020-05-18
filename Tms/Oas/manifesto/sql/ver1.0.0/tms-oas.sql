@@ -120,6 +120,7 @@ CREATE TABLE `TMS_account_items` (
   `transfer_filter` varchar(32) DEFAULT NULL,
   `financial_converter` varchar(4) DEFAULT NULL,
   `financial_order` int(11) default NULL,
+  `show_empty` enum('0','1') NOT NULL DEFAULT '0',
   `note` varchar(50) DEFAULT NULL,
   `modify_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`item_code`,`userkey`),

@@ -198,7 +198,7 @@ class Ledger extends Taxation
                         }
                     } else {
 
-                        if ($month > 0 && $m - $month > 1) {
+                        if ($item['show_empty'] === '1' && $month > 0 && $m - $month > 1) {
                             $this->fillMonths(
                                 $month + 1, $m - 1, $balance, $lod, $dayAlign,
                                 $m_total_left, $m_total_right, $total_left, $total_right,
@@ -568,7 +568,7 @@ class Ledger extends Taxation
                     $data['month'] = null;
 
                     // Fill monthes
-                    if ($during && $month > 0) {
+                    if ($item['show_empty'] === '1' && $month > 0) {
                         $end = date('n');
                         $this->fillMonths(
                             $month + 1, $end, $balance, $lod, $dayAlign,
@@ -787,6 +787,12 @@ class Ledger extends Taxation
             $fw = [];
             $fw['day'] = date('t', strtotime($this->request->POST('nendo') . "-{$i}-01"));
             $fw['summary'] = Lang::translate('LG_NEXT');
+
+            $this_month = (int)date('n');
+            $today = (int)date('j');
+            if ($i === $this_month && (int)$fw['day'] > $today) {
+                continue;
+            }
 
             $fwKey = ($balance > 0) ? 'amount_left' : 'amount_right';
             $fw[$fwKey] = abs($balance);
