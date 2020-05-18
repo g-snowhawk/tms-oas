@@ -198,14 +198,6 @@ class Ledger extends Taxation
                         }
                     } else {
 
-                        if ($item['show_empty'] === '1' && $month > 0 && $m - $month > 1) {
-                            $this->fillMonths(
-                                $month + 1, $m - 1, $balance, $lod, $dayAlign,
-                                $m_total_left, $m_total_right, $total_left, $total_right,
-                                $y, $lineNo
-                            );
-                        }
-
                         $data['month'] = $m;
                         $data['day']   = $d;
                         $dayAlign = "R";
@@ -312,6 +304,15 @@ class Ledger extends Taxation
 
                             // Draw separator
                             $this->doubleLineLong($y);
+
+                            // Fill monthes
+                            if ($item['show_empty'] === '1' && $month > 0 && $m - $month > 1) {
+                                $this->fillMonths(
+                                    $month + 1, $m - 1, $balance, $lod, $dayAlign,
+                                    $m_total_left, $m_total_right, $total_left, $total_right,
+                                    $y, $lineNo
+                                );
+                            }
 
                             $data['month'] = null;
                             $fw = ['month' => $m];
