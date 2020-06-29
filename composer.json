@@ -1,6 +1,5 @@
 {
     "name": "g-snowhawk/tms-oas",
-    "version": "dev-master",
     "type": "library",
     "description": "This package is online accounting system.",
     "license": "MIT",
