@@ -801,7 +801,7 @@ class Ledger extends Taxation
             $fw['day'] = date('t', strtotime($this->request->POST('nendo') . "-{$i}-01"));
 
             // 
-            if (strtotime($this->request->POST('nendo') . "-{$month}-{$fw['day']}") > time()) {
+            if (strtotime($this->request->POST('nendo') . "-{$i}-{$fw['day']}") > time()) {
                 continue;
             }
 

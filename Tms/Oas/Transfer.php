@@ -74,7 +74,7 @@ class Transfer extends \Tms\Oas
         $table_columns = $this->db->getFields($this->db->TABLE(self::TRANSFER_TABLE));
 
         $sql_function = 'update';
-        $page_number = (int)$post['page_number'];
+        $page_number = (int)$post['page_number'] ?? null;
         if (empty($page_number)) {
             $page_number = $this->newTransferNumber($post['issue_date'], $post['category']);
             if ($page_number < 0) {
