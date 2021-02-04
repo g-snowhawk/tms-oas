@@ -437,7 +437,8 @@ class Response extends \Tms\Oas\Fixedasset
         $tp = $this->depreciate($year, $year, $result);
         if ($tp > $price_onhand) {
             $data['depreciate_price'] = $price_onhand;
-            $memValue = self::MEMVALUE;
+            $memValue = ($result['item'] !== $this->lumpsum_depreciable_assets)
+                ? self::MEMVALUE : 0;
             $data['price_onhand'] = $memValue;
         } else {
             $data['depreciate_price'] = $tp;
