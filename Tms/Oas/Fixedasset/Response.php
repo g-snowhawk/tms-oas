@@ -319,6 +319,7 @@ class Response extends \Tms\Oas\Fixedasset
                 $ary = $this->pdfMappingRow('R');
                 $this->pdf->draw($ary, $data, $this->y);
                 $this->y += self::LINE_HEIGHT;
+
                 $note = Lang::translate('BRACKETS_LEFT') . Lang::translate('SALE_PRICE') . number_format($unit['change_price']) . Lang::translate('COMMA');
                 $eki = $unit['change_price'] - $price_onhand;
                 $note .= (($eki < 0) ? Lang::translate('LOSS_ON_SALE') : Lang::translate('GAIN_ON_SALE')) . number_format($eki) . Lang::translate('BRACKETS_RIGHT');
@@ -333,6 +334,7 @@ class Response extends \Tms\Oas\Fixedasset
                 $ary = $this->pdfMappingRow('C');
                 $this->pdf->draw($ary, $data, $this->y);
                 $this->y += self::LINE_HEIGHT;
+
                 $this->change_quantity_total += $unit['change_quantity'];
                 $this->change_price_total    += -$price_onhand;
                 $price_onhand = 0;
@@ -362,6 +364,7 @@ class Response extends \Tms\Oas\Fixedasset
                 $ary = $this->pdfMappingRow('R');
                 $this->pdf->draw($ary, $data, $this->y);
                 $this->y += self::LINE_HEIGHT;
+
                 $note = Lang::translate('BRACKETS_LEFT') . Lang::translate('LOSS_OF_SALE') . number_format($unit['change_price']) . Lang::translate('YEN') . Lang::translate('BRACKETS_RIGHT');
                 $data = [
                     'date' => Lang::translate('IDENTICAL'),
@@ -374,6 +377,7 @@ class Response extends \Tms\Oas\Fixedasset
                 $ary = $this->pdfMappingRow('C');
                 $this->pdf->draw($ary, $data, $this->y);
                 $this->y += self::LINE_HEIGHT;
+
                 $this->change_quantity_total += $unit['change_quantity'];
                 $this->change_price_total    += -$price_onhand;
                 $price_onhand = 0;
@@ -441,7 +445,11 @@ class Response extends \Tms\Oas\Fixedasset
             $data['price_onhand'] = $price_onhand - $data['depreciate_price'];
         }
         $data['official_ratio'] = $result['official_ratio'] . '%';
-        $data['note'] = number_format($data['depreciate_price'] - $memValue);
+
+        $inclusion_amount = $data['depreciate_price'] - $memValue;
+        if ($inclusion_amount > 0) {
+            $data['note'] = number_format($inclusion_amount);
+        }
 
         $this->depreciate_price_total += $data['depreciate_price'];
         $this->price_onhand_total     += $data['price_onhand'];
