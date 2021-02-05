@@ -296,13 +296,17 @@ class Response extends \Tms\Oas\Transfer
             ), $replaces
         )) {
             $result = $this->db->fetch();
-            $max = $result['max'];
+            $max = $result['max'] ?? 0;
         } else {
             echo $this->db->error();
             exit;
         }
         if ($max === 0) {
-            echo 'No data';
+            echo sprintf(
+                'Not found any data between %s and %s',
+                date('Y-n-j', strtotime($begin)),
+                date('Y-n-j', strtotime($end))
+            );
             exit;
         }
 
