@@ -109,6 +109,9 @@ table.transfer-detail tfoot td.value {
 table.transfer-detail tbody td {
   padding: 0 0 1px;
 }
+table.transfer-detail tbody td.empty {
+  background: #ffc;
+}
 table.transfer-detail tbody td input {
   border: 0 none transparent;
   line-height: 1;
@@ -116,11 +119,13 @@ table.transfer-detail tbody td input {
   vertical-align: top;
 }
 table.transfer-detail input[name^=amount_] {
+  background: transparent;
   padding: .5em;
   text-align: right;
   width: 110px;
 }
 table.transfer-detail select[name^=item_code_] {
+  background: transparent;
   border: 0 none transparent;
   border-radius: 0;
   line-height: 1;
@@ -133,6 +138,7 @@ table.transfer-detail select[name^=item_code_]:disabled {
   color: #000;
 }
 table.transfer-detail input[name^=summary] {
+  background: transparent;
   padding: .5em;
   text-align: center;
   width: 240px;

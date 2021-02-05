@@ -27,6 +27,7 @@ let itemCodeTemplate = undefined;
 let buttonAddPage = undefined;
 let buttonUnlock = undefined;
 let buttonCancel = undefined;
+let buttonSave = undefined;
 let linkPreviousPage = undefined;
 let linkNextPage = undefined;
 let token = undefined;
@@ -64,6 +65,7 @@ function initializeTransferEditor(event) {
     buttonAddPage = document.getElementById('addpage');
     buttonUnlock = document.getElementById('unlock');
     buttonCancel = document.getElementById('cancel');
+    buttonSave = document.querySelector('input[name=s1_submit]');
     naviPagination = document.getElementById('page-nav');
     linkPreviousPage = document.getElementById('prev-page-link');
     linkNextPage = document.getElementById('next-page-link');
@@ -100,6 +102,7 @@ function initializeTransferEditor(event) {
     if (buttonAddPage) buttonAddPage.addEventListener('click', addNewPage);
     if (buttonUnlock) buttonUnlock.addEventListener('click', unlockForm);
     if (buttonCancel) buttonCancel.addEventListener('click', backToViewMode);
+    if (buttonSave) buttonSave.addEventListener('click', checkTransferBeforeSubmit);
     if (linkPreviousPage) linkPreviousPage.addEventListener('click', moveToPage);
     if (linkNextPage) linkNextPage.addEventListener('click', moveToPage);
 
@@ -473,17 +476,50 @@ function replaceForm(source) {
 function checkTransferBeforeSubmit(event)
 {
     const form = event.currentTarget;
-    if (displayTotalLeft
-        && displayTotalRight
-        && displayTotalLeft.innerHTML !== displayTotalRight.innerHTML
-    ) {
-        event.preventDefault();
-        alert(displayTotalRight.dataset.message);
-        return;
-    }
 
-    const elements = form.querySelectorAll('*[data-lock-type=ever]');
-    for (let element of elements) {
-        element.disabled = false;
+    if (event.type === 'click') {
+        const leftPrices = document.querySelectorAll('input[name^=amount_left]');
+        const leftItems = document.querySelectorAll('select[name^=item_code_left]');
+        const rightPrices = document.querySelectorAll('input[name^=amount_right]');
+        const rightItems = document.querySelectorAll('select[name^=item_code_right]');
+
+        const len = leftPrices.length;
+        let empty = 0;
+        for (let i = 0; i < len; i++) {
+            const line = {
+                left : [ leftPrices[i], leftItems[i] ],
+                right : [ rightPrices[i], rightItems[i] ],
+            };
+            for (let lr in line) {
+                for (let n = 0; n < 2; n++) {
+                    const q = (n === 0) ? 1 : 0;
+                    if (line[lr][n].value !== '' && line[lr][q].value === '') {
+                        line[lr][q].parentNode.classList.add('empty');
+                        empty++;
+                    }
+                }
+            }
+        }
+
+        if (empty > 0) {
+            event.preventDefault();
+            alert(event.target.dataset.ifBlank);
+            return;
+        }
+
+        // Compare totals
+        if (displayTotalLeft
+            && displayTotalRight
+            && displayTotalLeft.innerHTML !== displayTotalRight.innerHTML
+        ) {
+            event.preventDefault();
+            alert(displayTotalRight.dataset.message);
+            return;
+        }
+    } else if (event.type === 'submit') {
+        const elements = form.querySelectorAll('*[data-lock-type=ever]');
+        for (let element of elements) {
+            element.disabled = false;
+        }
     }
 }
