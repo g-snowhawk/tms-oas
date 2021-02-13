@@ -92,6 +92,7 @@ class Fixedasset extends Taxation
         }
 
         if (empty($post['id'])) {
+            $save['userkey'] = $this->uid;
             $result = $this->db->insert($table, $save, $raw);
         } else {
             $result = $this->db->update($table, $save, 'id = ?', [$post['id']], $raw);
