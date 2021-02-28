@@ -140,7 +140,7 @@ class Response extends \Tms\Oas\Fixedasset
 
         $this->pdf->loadTemplate("oas/fixedasset/default.pdf");
 
-        if (!$this->db->query($this->SQL(null), [$this->uid])) {
+        if (!$this->db->query($this->SQL(null), [$this->uid, $tYear])) {
             return false;
         }
 
@@ -544,6 +544,7 @@ class Response extends \Tms\Oas\Fixedasset
                   FROM `table::fixed_assets` fa
                   JOIN `table::account_items` ai
                     ON fa.item = ai.item_code
-                 WHERE fa.userkey = ? AND fa.quantity > 0";
+                 WHERE fa.userkey = ? AND fa.quantity > 0
+                   AND DATE_FORMAT(fa.acquire, '%Y') <= ?";
     }
 }
