@@ -439,8 +439,8 @@ class Financial extends \Tms\Oas\Taxation
     {
         $sql = "SELECT * 
                   FROM `table::fixed_assets`
-                 WHERE quantity > 0"; 
-        if (!$this->db->query($sql)) {
+                 WHERE quantity > 0 AND DATE_FORMAT(acquire,'%Y') <= ?";
+        if (!$this->db->query($sql, [$target_year])) {
             return 0;
         }
 
