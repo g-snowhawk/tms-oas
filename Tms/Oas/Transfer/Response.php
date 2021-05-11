@@ -89,7 +89,11 @@ class Response extends \Tms\Oas\Transfer
             if ($this->request->param('add') === '1') {
                 $post['addnew'] = '1';
                 if ($this->request->param('issue_date')) {
-                    $post['issue_date'] = $this->request->param('issue_date');
+                    $issue_date = date(
+                        'Y-m-d',
+                        strtotime($this->request->param('issue_date'))
+                    );
+                    $post['issue_date'] = $issue_date;
                 }
             } else {
                 $latest_transfer = $this->latestTransfer($category, 'issue_date,page_number');
@@ -123,7 +127,11 @@ class Response extends \Tms\Oas\Transfer
                     $readonly = false;
                     $post['addnew'] = '1';
                     if ($this->request->param('issue_date')) {
-                        $post['issue_date'] = $this->request->param('issue_date');
+                        $issue_date = date(
+                            'Y-m-d',
+                            strtotime($this->request->param('issue_date'))
+                        );
+                        $post['issue_date'] = $issue_date;
                     }
                 } else {
                     foreach ($fetch as $unit) {

@@ -365,8 +365,10 @@ function addNewPage(event) {
     let queryString = '?mode=' + editMode + '&add=1';
 
     if (element.findParent('.calendar-ui')) {
-        const hash = hashFromCalendar(element);
-        queryString += '&issue_date=' + hash.substr(1);
+        const hash = hashFromCalendar(element).substr(1);
+        const match = hash.match(/([0-9]+)-([0-9]+)-([0-9]+)/);
+        const day = match[1] + '-' + ('00' + match[2]).slice(-2) + '-' + ('00' + match[3]).slice(-2);
+        queryString += '&issue_date=' + day;
         removeCalendar();
     } else if (linkNextPage) {
         queryString += '&issue_date=' + issueDate;
