@@ -370,7 +370,7 @@ function addNewPage(event) {
         const day = match[1] + '-' + ('00' + match[2]).slice(-2) + '-' + ('00' + match[3]).slice(-2);
         queryString += '&issue_date=' + day;
         removeCalendar();
-    } else if (linkNextPage) {
+    } else /* if (linkNextPage) */ {
         queryString += '&issue_date=' + issueDate;
     }
 
